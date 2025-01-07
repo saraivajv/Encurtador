@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "Encurtador de Links",
+    "_postman_id": "12345678-1234-1234-1234-1234567890ab",
+    "description": "Collection para testar o encurtador de links em Rust.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Encurtar URL",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "description": ""
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"url\": \"https://www.exemplo.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/encurtar",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["encurtar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Extrai a resposta JSON",
+              "const response = pm.response.json();",
+              "",
+              "// Extrai o short_url da resposta",
+              "const shortUrl = response.short_url;",
+              "",
+              "// Usa uma expressão regular para extrair o código curto",
+              "const regex = /\\/([A-Za-z0-9]{6})$/;",
+              "const match = shortUrl.match(regex);",
+              "",
+              "if (match) {",
+              "    const code = match[1];",
+              "    // Define a variável de ambiente 'code'",
+              "    pm.environment.set(\"code\", code);",
+              "    console.log(`Código extraído: ${code}`);",
+              "} else {",
+              "    console.log(\"Código curto não encontrado na resposta.\");",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Redirecionar para a URL Original",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/{{code}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["{{code}}"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "code",
+      "value": "",
+      "type": "string",
+      "description": "Código curto extraído da resposta da requisição de encurtamento."
+    }
+  ]
+}
